@@ -1,0 +1,84 @@
+---
+title: "Shiny test"
+format: dashboard
+server: shiny
+---
+```{r}
+#| context: setup
+
+# Load packages
+librarian::shelf(shiny, dplyr, leaflet,
+                 terra, raster, leafem,
+                 htmltools, stringr,
+                 quiet = T)
+
+# Read in established model raster
+est_raster <- terra::rast("Ensemble_1980-2023_EST.tif")
+# Rename each layer to just the year
+names(est_raster) <- stringr::str_replace(names(est_raster), "est-", "")
+```
+
+# {.sidebar}
+
+```{r}
+# Drop-down menu to select the year
+selectInput('year_select', 'Year', names(est_raster)) 
+```
+
+# Plot 
+```{r}
+# Our Leaflet map will show up in the "Plot" tab
+leafletOutput("plot")
+```
+
+
+```{r}
+#| context: server
+
+# Pick out the raster layer that corresponds to the year the user selects
+raster_layer <- reactive({est_raster[[input$year_select]]
+})
+
+output$plot <- leaflet::renderLeaflet({
+  # Set the color palette of the raster layer plot
+  pal <- leaflet::colorNumeric(
+    palette = "viridis",
+    domain = terra::values(raster_layer()),
+    na.color = "transparent"
+  )
+  
+  leaflet() %>%
+    # Add Leaflet-provided gray background map
+    leaflet::addProviderTiles(providers$CartoDB.Positron, group = "Grey background") %>%
+    # Add Leaflet-provided terrain map
+    leaflet::addProviderTiles("Esri.WorldImagery", group = "Imagery") %>%
+    # Add raster layer plot
+    leaflet::addRasterImage(group = "raster", raster_layer(), colors = pal) %>%
+    # Add legend for raster layer
+    leaflet::addLegend(
+      group = "raster",
+      data = raster_layer(),
+      pal = pal,
+      values = values(raster_layer()),
+      position = "bottomleft",
+      title = "Probability of rust"
+    ) %>%
+    # Add lat/lon coordinate indicator
+    leafem::addMouseCoordinates() %>%
+    # Add mouseover popup that shows the value of the raster layer
+    leafem::addImageQuery(
+      x = raster::raster(raster_layer()),
+      group = "raster",
+      position = "bottomright"
+    ) %>%
+    # Set the layer control
+    leaflet::addLayersControl(
+      baseGroups = c("Grey background", "Imagery"),
+      overlayGroups = c("raster"),
+      options = layersControlOptions(collapsed = FALSE)
+    )
+})
+
+```
+
+
