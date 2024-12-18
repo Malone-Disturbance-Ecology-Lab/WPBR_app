@@ -14,15 +14,30 @@ librarian::shelf(shiny, dplyr, leaflet,
 
 # Read in established model raster
 est_raster <- terra::rast("Ensemble_1980-2023_EST.tif")
-# Rename each layer to just the year
+# Read in invading model raster
+inv_raster <- terra::rast("Ensemble_1980-2023_INV.tif")
+
+# Rename each layer to just the year for both models
 names(est_raster) <- stringr::str_replace(names(est_raster), "est-", "")
+names(inv_raster) <- stringr::str_replace(names(inv_raster), "inv-", "")
 ```
 
 # {.sidebar}
 
 ```{r}
+# Drop-down menu to select the model
+selectInput(inputId = "model_select", 
+            label = "Model", 
+            choices = list("Established Model" = 1, "Invading Model" = 2),
+            selected = 1) 
+```
+
+```{r}
 # Drop-down menu to select the year
-selectInput('year_select', 'Year', names(est_raster)) 
+selectInput(inputId = "year_select", 
+            label = "Year", 
+            choices = 1980:2023,
+            selected = 1980) 
 ```
 
 # Plot 
@@ -35,8 +50,19 @@ leafletOutput("plot")
 ```{r}
 #| context: server
 
-# Pick out the raster layer that corresponds to the year the user selects
-raster_layer <- reactive({est_raster[[input$year_select]]
+# Pick out the model that corresponds to the user's selection
+raster_model <- reactive({
+  if (input$model_select == "1"){
+    return(est_raster)
+  }
+  
+  if (input$model_select == "2"){
+    return(inv_raster)
+  }
+})
+
+# Pick out the raster layer that corresponds to the model and year the user selects
+raster_layer <- reactive({raster_model()[[input$year_select]]
 })
 
 output$plot <- leaflet::renderLeaflet({
