@@ -9,8 +9,8 @@ server: shiny
 # Load packages
 librarian::shelf(shiny, dplyr, leaflet,
                  terra, raster, leafem,
-                 htmltools, stringr,
-                 quiet = T)
+                 htmltools, stringr, mapview,
+                 webshot2, quiet = T)
 
 # Read in established model raster
 est_raster <- terra::rast("Ensemble_1980-2023_EST.tif")
@@ -26,24 +26,33 @@ names(inv_raster) <- stringr::str_replace(names(inv_raster), "inv-", "")
 
 ```{r}
 # Drop-down menu to select the model
-selectInput(inputId = "model_select", 
-            label = "Model", 
-            choices = list("Established Model" = 1, "Invading Model" = 2),
-            selected = 1) 
+selectInput(
+  inputId = "model_select",
+  label = "Model",
+  choices = list("Established Model" = 1, "Invading Model" = 2),
+  selected = 1
+) 
 ```
 
 ```{r}
 # Drop-down menu to select the year
-selectInput(inputId = "year_select", 
-            label = "Year", 
-            choices = 1980:2023,
-            selected = 1980) 
+selectInput(
+  inputId = "year_select",
+  label = "Year",
+  choices = 1980:2023,
+  selected = 1980
+) 
+```
+
+```{r}
+# Download button to download a picture of the map
+downloadButton(outputId = "dl")
 ```
 
 # Plot 
 ```{r}
 # Our Leaflet map will show up in the "Plot" tab
-leafletOutput("plot")
+leafletOutput(outputId = "map")
 ```
 
 
@@ -52,20 +61,22 @@ leafletOutput("plot")
 
 # Pick out the model that corresponds to the user's selection
 raster_model <- reactive({
-  if (input$model_select == "1"){
+  if (input$model_select == "1") {
     return(est_raster)
   }
   
-  if (input$model_select == "2"){
+  if (input$model_select == "2") {
     return(inv_raster)
   }
 })
 
 # Pick out the raster layer that corresponds to the model and year the user selects
-raster_layer <- reactive({raster_model()[[input$year_select]]
+raster_layer <- reactive({
+  raster_model()[[input$year_select]]
 })
 
-output$plot <- leaflet::renderLeaflet({
+# Create the foundational Leaflet map
+foundational_map <- reactive({
   # Set the color palette of the raster layer plot
   pal <- leaflet::colorNumeric(
     palette = "viridis",
@@ -104,6 +115,39 @@ output$plot <- leaflet::renderLeaflet({
       options = layersControlOptions(collapsed = FALSE)
     )
 })
+
+# Render the foundational Leaflet map
+output$map <- leaflet::renderLeaflet({
+  foundational_map()
+})
+
+# store the current user-created version of the Leaflet map for download in a reactive expression
+# https://stackoverflow.com/questions/44259716/how-to-save-a-leaflet-map-in-shiny
+user_created_map <- reactive({
+  # Call the foundational Leaflet map
+  foundational_map() %>%
+    
+    # Store the view based on UI
+    leaflet::setView(
+      lng = input$map_center$lng,
+      lat = input$map_center$lat,
+      zoom = input$map_zoom
+    )
+  
+})
+
+output$dl <- downloadHandler(
+  # Create the output file name
+  filename = paste0(Sys.Date(), "_custom_map", ".png"),
+  
+  content = function(file) {
+    # Tell the download button to take a screenshot with mapview::mapshot2()
+    mapview::mapshot2(x = user_created_map(),
+                      file = file,
+                      # Match the height & width from the viewing port to clipping rectangle
+                      cliprect = "viewport")
+  }
+)
 
 ```
 
