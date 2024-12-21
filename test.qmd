@@ -123,16 +123,71 @@ output$map <- leaflet::renderLeaflet({
 
 # store the current user-created version of the Leaflet map for download in a reactive expression
 # https://stackoverflow.com/questions/44259716/how-to-save-a-leaflet-map-in-shiny
+
 user_created_map <- reactive({
-  # Call the foundational Leaflet map
-  foundational_map() %>%
+  # If the map is toggled to "Imagery" and "raster" layers, show those layers in the download
+  if (identical(x = c("Imagery", "raster"), y = input$map_groups)) {
+    # Call the foundational Leaflet map
+    user_created_map <- foundational_map() %>%
+      # Store the view based on UI
+      leaflet::setView(
+        lng = input$map_center$lng,
+        lat = input$map_center$lat,
+        zoom = input$map_zoom
+      ) %>%
+      # Show only the layer(s) the user toggled to
+      leaflet::showGroup(group = c("Imagery", "raster"))
     
-    # Store the view based on UI
-    leaflet::setView(
-      lng = input$map_center$lng,
-      lat = input$map_center$lat,
-      zoom = input$map_zoom
-    )
+    return(user_created_map)
+    
+    # Else if the map is toggled to "Grey background" and "raster" layers, show those layers in the download
+  } else if (identical(x = c("Grey background", "raster"), y = input$map_groups)) {
+    # Call the foundational Leaflet map
+    user_created_map <- foundational_map() %>%
+      # Store the view based on UI
+      leaflet::setView(
+        lng = input$map_center$lng,
+        lat = input$map_center$lat,
+        zoom = input$map_zoom
+      ) %>%
+      # Show only the layer(s) the user toggled to
+      leaflet::showGroup(group = c("Grey background", "raster"))
+    
+    return(user_created_map)
+    
+    # Else if the map is toggled to only the "Imagery" layer, show only that layer in the download
+  } else if (input$map_groups == "Imagery") {
+    # Call the foundational Leaflet map
+    user_created_map <- foundational_map() %>%
+      # Store the view based on UI
+      leaflet::setView(
+        lng = input$map_center$lng,
+        lat = input$map_center$lat,
+        zoom = input$map_zoom
+      ) %>%
+      # Show only the layer(s) the user toggled to
+      leaflet::hideGroup(group = c("raster")) %>%
+      leaflet::showGroup(group = c("Imagery"))
+    
+    return(user_created_map)
+    
+    # Else if the map is toggled to only the "Grey background" layer, show only that layer in the download
+  } else if (input$map_groups == "Grey background") {
+    # Call the foundational Leaflet map
+    user_created_map <- foundational_map() %>%
+      # Store the view based on UI
+      leaflet::setView(
+        lng = input$map_center$lng,
+        lat = input$map_center$lat,
+        zoom = input$map_zoom
+      ) %>%
+      # Show only the layer(s) the user toggled to
+      leaflet::hideGroup(group = c("raster")) %>%
+      leaflet::showGroup(group = c("Grey background"))
+    
+    return(user_created_map)
+    
+  }
   
 })
 
