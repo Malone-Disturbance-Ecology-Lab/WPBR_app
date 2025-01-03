@@ -1,6 +1,12 @@
 ---
-title: "Shiny test"
-format: dashboard
+title: "RustMapper: White Pine Blister Rust (WPBR) Risk"
+format: 
+  dashboard:
+    theme: 
+       - minty
+       - styles.scss
+    nav-buttons: [github]
+    github: https://github.com/Malone-Disturbance-Ecology-Lab/WPBR_app
 server: shiny
 ---
 ```{r}
@@ -11,6 +17,9 @@ librarian::shelf(shiny, dplyr, leaflet,
                  terra, raster, leafem,
                  htmltools, stringr, mapview,
                  webshot2, quiet = T)
+
+# NOTE: might need to run this in order for the Downloading feature to work
+# webshot::install_phantomjs(force = TRUE)
 
 # Read in established model raster
 est_raster <- terra::rast("Ensemble_1980-2023_EST.tif")
@@ -49,7 +58,7 @@ selectInput(
 downloadButton(outputId = "dl")
 ```
 
-# Plot 
+# Map 
 ```{r}
 # Our Leaflet map will show up in the "Plot" tab
 leafletOutput(outputId = "map")
@@ -86,17 +95,17 @@ foundational_map <- reactive({
   
   leaflet() %>%
     # Add Leaflet-provided gray background map
-    leaflet::addProviderTiles(providers$CartoDB.Positron, group = "Grey background") %>%
+    leaflet::addProviderTiles(providers$CartoDB.Positron, group = "Gray background") %>%
     # Add Leaflet-provided terrain map
     leaflet::addProviderTiles("Esri.WorldImagery", group = "Imagery") %>%
     # Add raster layer plot
-    leaflet::addRasterImage(group = "raster", raster_layer(), colors = pal) %>%
+    leaflet::addRasterImage(group = "WPBR risk", raster_layer(), colors = pal) %>%
     # Add legend for raster layer
     leaflet::addLegend(
-      group = "raster",
+      group = "WPBR risk",
       data = raster_layer(),
       pal = pal,
-      values = values(raster_layer()),
+      values = terra::values(raster_layer()),
       position = "bottomleft",
       title = "Probability of rust"
     ) %>%
@@ -105,13 +114,13 @@ foundational_map <- reactive({
     # Add mouseover popup that shows the value of the raster layer
     leafem::addImageQuery(
       x = raster::raster(raster_layer()),
-      group = "raster",
+      group = "WPBR risk",
       position = "bottomright"
     ) %>%
     # Set the layer control
     leaflet::addLayersControl(
-      baseGroups = c("Grey background", "Imagery"),
-      overlayGroups = c("raster"),
+      baseGroups = c("Gray background", "Imagery"),
+      overlayGroups = c("WPBR risk"),
       options = layersControlOptions(collapsed = FALSE)
     )
 })
@@ -125,8 +134,8 @@ output$map <- leaflet::renderLeaflet({
 # https://stackoverflow.com/questions/44259716/how-to-save-a-leaflet-map-in-shiny
 
 user_created_map <- reactive({
-  # If the map is toggled to "Imagery" and "raster" layers, show those layers in the download
-  if (identical(x = c("Imagery", "raster"), y = input$map_groups)) {
+  # If the map is toggled to "Imagery" and "WPBR risk" layers, show those layers in the download
+  if (identical(x = c("Imagery", "WPBR risk"), y = input$map_groups)) {
     # Call the foundational Leaflet map
     user_created_map <- foundational_map() %>%
       # Store the view based on UI
@@ -136,12 +145,12 @@ user_created_map <- reactive({
         zoom = input$map_zoom
       ) %>%
       # Show only the layer(s) the user toggled to
-      leaflet::showGroup(group = c("Imagery", "raster"))
+      leaflet::showGroup(group = c("Imagery", "WPBR risk"))
     
     return(user_created_map)
     
-    # Else if the map is toggled to "Grey background" and "raster" layers, show those layers in the download
-  } else if (identical(x = c("Grey background", "raster"), y = input$map_groups)) {
+    # Else if the map is toggled to "Gray background" and "WPBR risk" layers, show those layers in the download
+  } else if (identical(x = c("Gray background", "WPBR risk"), y = input$map_groups)) {
     # Call the foundational Leaflet map
     user_created_map <- foundational_map() %>%
       # Store the view based on UI
@@ -151,7 +160,7 @@ user_created_map <- reactive({
         zoom = input$map_zoom
       ) %>%
       # Show only the layer(s) the user toggled to
-      leaflet::showGroup(group = c("Grey background", "raster"))
+      leaflet::showGroup(group = c("Gray background", "WPBR risk"))
     
     return(user_created_map)
     
@@ -166,13 +175,13 @@ user_created_map <- reactive({
         zoom = input$map_zoom
       ) %>%
       # Show only the layer(s) the user toggled to
-      leaflet::hideGroup(group = c("raster")) %>%
+      leaflet::hideGroup(group = c("WPBR risk")) %>%
       leaflet::showGroup(group = c("Imagery"))
     
     return(user_created_map)
     
-    # Else if the map is toggled to only the "Grey background" layer, show only that layer in the download
-  } else if (input$map_groups == "Grey background") {
+    # Else if the map is toggled to only the "Gray background" layer, show only that layer in the download
+  } else if (input$map_groups == "Gray background") {
     # Call the foundational Leaflet map
     user_created_map <- foundational_map() %>%
       # Store the view based on UI
@@ -182,8 +191,8 @@ user_created_map <- reactive({
         zoom = input$map_zoom
       ) %>%
       # Show only the layer(s) the user toggled to
-      leaflet::hideGroup(group = c("raster")) %>%
-      leaflet::showGroup(group = c("Grey background"))
+      leaflet::hideGroup(group = c("WPBR risk")) %>%
+      leaflet::showGroup(group = c("Gray background"))
     
     return(user_created_map)
     
