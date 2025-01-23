@@ -57,7 +57,7 @@ selectInput(
 
 ```{r}
 # Download button to download a picture of the map
-downloadButton(outputId = "dl")
+downloadButton(outputId = "dl", label = "Map Download")
 ```
 
 ## Row 
