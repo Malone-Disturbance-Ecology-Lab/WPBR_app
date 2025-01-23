@@ -63,7 +63,7 @@ downloadButton(outputId = "dl", label = "Map Download")
 ## Row 
 
 ```{r}
-# Our Leaflet map will show up in the "Plot" tab
+# Our Leaflet map will show up in the "Map" tab
 leafletOutput(outputId = "map")
 ```
 
@@ -251,6 +251,7 @@ numericInput(inputId = "north_coord", label = "North coordinate:", terra::ext(es
 
 ## Row 
 ```{r}
+# Our summary table will show up in the "Summary" tab
 tableOutput(outputId = "values")
 ```
 
@@ -268,6 +269,7 @@ summary_raster_model <- reactive({
   }
 })
 
+# Get the name of the selected model
 summary_raster_model_name <- reactive({
   if (input$summary_model_select == "1") {
     return("Established")
@@ -278,29 +280,32 @@ summary_raster_model_name <- reactive({
   }
 })
 
+# Create a SpatVector with our selected bounds 
 polygon_shape <- reactive({
   e <- terra::ext(input$west_coord, input$east_coord, input$south_coord, input$north_coord)
   p <- terra::as.polygons(e, crs="epsg:4326")
   return(p)
 })
 
+# Find the numeric index of the layer that has the starting year
 start_year <- reactive({
-  # Find the numeric index of the layer that has the starting year
   start_index <- which(names(summary_raster_model()) == as.character(input$range[1]))
   return(start_index)
 })
 
+# Find the numeric index of the layer that has the ending year
 end_year <- reactive({
-  # Find the numeric index of the layer that has the ending year
   end_index <- which(names(summary_raster_model()) == as.character(input$range[2]))
   return(end_index)
 })
 
+# Calculate the mean risk for the specified time interval and spatial area
 raster_mean <- reactive({
   mean_values <- terra::extract(summary_raster_model()[[start_year():end_year()]], polygon_shape(), mean, na.rm = TRUE, ID = FALSE)
   return(base::t(mean_values))
 })
 
+# Assemble the dataframe
 table_summary <- reactive({
   data.frame(
     Model = summary_raster_model_name(),
@@ -313,7 +318,7 @@ table_summary <- reactive({
   )
 })
 
-# Show the values in an HTML table ----
+# Show the values in an HTML table
 output$values <- renderTable({
   table_summary()
 })
