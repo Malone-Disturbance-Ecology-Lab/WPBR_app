@@ -31,7 +31,9 @@ names(est_raster) <- stringr::str_replace(names(est_raster), "est-", "")
 names(inv_raster) <- stringr::str_replace(names(inv_raster), "inv-", "")
 ```
 
-# {.sidebar}
+# Map
+
+## {.sidebar}
 
 ```{r}
 # Drop-down menu to select the model
@@ -58,7 +60,8 @@ selectInput(
 downloadButton(outputId = "dl")
 ```
 
-# Map 
+## Row 
+
 ```{r}
 # Our Leaflet map will show up in the "Plot" tab
 leafletOutput(outputId = "map")
@@ -216,3 +219,102 @@ output$dl <- downloadHandler(
 ```
 
 
+# Summary
+
+## {.sidebar}
+
+Get summary stats for a specific model over a time period and spatial area: 
+
+```{r}
+# Drop-down menu to select the model
+selectInput(
+  inputId = "summary_model_select",
+  label = "Model for summary",
+  choices = list("Established Model" = 1, "Invading Model" = 2),
+  selected = 1
+) 
+
+# Input: Specification of range within an interval ----
+sliderInput(inputId = "range", label = "Range:",
+            min = 1980, max = 2023,
+            value = c(1980,1990), sep = "")
+
+# Input: Specify the number of observations to view ----
+numericInput(inputId = "west_coord", label = "West coordinate:", terra::ext(est_raster)[1])
+
+numericInput(inputId = "east_coord", label = "East coordinate:", terra::ext(est_raster)[2])
+
+numericInput(inputId = "south_coord", label = "South coordinate:", terra::ext(est_raster)[3])
+
+numericInput(inputId = "north_coord", label = "North coordinate:", terra::ext(est_raster)[4])
+```
+
+## Row 
+```{r}
+tableOutput(outputId = "values")
+```
+
+```{r}
+#| context: server
+
+# Pick out the model that corresponds to the user's selection
+summary_raster_model <- reactive({
+  if (input$summary_model_select == "1") {
+    return(est_raster)
+  }
+  
+  if (input$summary_model_select == "2") {
+    return(inv_raster)
+  }
+})
+
+summary_raster_model_name <- reactive({
+  if (input$summary_model_select == "1") {
+    return("Established")
+  }
+  
+  if (input$summary_model_select == "2") {
+    return("Invading")
+  }
+})
+
+polygon_shape <- reactive({
+  e <- terra::ext(input$west_coord, input$east_coord, input$south_coord, input$north_coord)
+  p <- terra::as.polygons(e, crs="epsg:4326")
+  return(p)
+})
+
+start_year <- reactive({
+  # Find the numeric index of the layer that has the starting year
+  start_index <- which(names(summary_raster_model()) == as.character(input$range[1]))
+  return(start_index)
+})
+
+end_year <- reactive({
+  # Find the numeric index of the layer that has the ending year
+  end_index <- which(names(summary_raster_model()) == as.character(input$range[2]))
+  return(end_index)
+})
+
+raster_mean <- reactive({
+  mean_values <- terra::extract(summary_raster_model()[[start_year():end_year()]], polygon_shape(), mean, na.rm = TRUE, ID = FALSE)
+  return(base::t(mean_values))
+})
+
+table_summary <- reactive({
+  data.frame(
+    Model = summary_raster_model_name(),
+    Year = input$range[1]:input$range[2],
+    Mean = raster_mean(),
+    West = input$west_coord,
+    East = input$east_coord,
+    South = input$south_coord,
+    North = input$north_coord
+  )
+})
+
+# Show the values in an HTML table ----
+output$values <- renderTable({
+  table_summary()
+})
+```
