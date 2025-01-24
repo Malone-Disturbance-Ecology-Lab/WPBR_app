@@ -60,6 +60,16 @@ selectInput(
 downloadButton(outputId = "dl", label = "Map Download")
 ```
 
+Current map coordinates:
+
+```{r}
+# Show current map coordinates
+textOutput("current_coords_w")
+textOutput("current_coords_e")
+textOutput("current_coords_s")
+textOutput("current_coords_n")
+```
+
 ## Row 
 
 ```{r}
@@ -201,6 +211,23 @@ user_created_map <- reactive({
     
   }
   
+})
+
+# Output the current coordinates on the map
+output$current_coords_w <- renderText({
+  paste0("West: ", input$map_bounds$west)
+})
+
+output$current_coords_e <- renderText({
+  paste0("East: ", input$map_bounds$east)
+})
+
+output$current_coords_s <- renderText({
+  paste0("South: ", input$map_bounds$south)
+})
+
+output$current_coords_n <- renderText({
+  paste0("North: ", input$map_bounds$north)
 })
 
 output$dl <- downloadHandler(
