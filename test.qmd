@@ -247,6 +247,9 @@ numericInput(inputId = "east_coord", label = "East coordinate:", terra::ext(est_
 numericInput(inputId = "south_coord", label = "South coordinate:", terra::ext(est_raster)[3])
 
 numericInput(inputId = "north_coord", label = "North coordinate:", terra::ext(est_raster)[4])
+
+# Download button to download a csv of the summary dataframe
+downloadButton(outputId = "dl2", label = "Data Download")
 ```
 
 ## Row 
@@ -329,4 +332,16 @@ table_summary <- reactive({
 output$values <- renderTable({
   table_summary()
 })
+
+output$dl2 <- downloadHandler(
+  # Create the output file name
+  filename = function() {
+    paste0(Sys.Date(), "_custom_summary.csv")
+  },
+  
+  content = function(file) {
+    # Tell the download button to export the summary dataframe as a csv
+    write.csv(table_summary(), file, row.names = FALSE)
+  }
+)
 ```
