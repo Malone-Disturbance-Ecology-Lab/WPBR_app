@@ -219,7 +219,7 @@ output$dl <- downloadHandler(
 ```
 
 
-# Summary
+# Data
 
 ## {.sidebar}
 
@@ -234,12 +234,12 @@ selectInput(
   selected = 1
 ) 
 
-# Input: Specification of range within an interval ----
+# Input: Specify the range of years you want
 sliderInput(inputId = "range", label = "Range:",
             min = 1980, max = 2023,
             value = c(1980,1990), sep = "")
 
-# Input: Specify the number of observations to view ----
+# Input: Specify the coordinates for the spatial area you want
 numericInput(inputId = "west_coord", label = "West coordinate:", terra::ext(est_raster)[1])
 
 numericInput(inputId = "east_coord", label = "East coordinate:", terra::ext(est_raster)[2])
