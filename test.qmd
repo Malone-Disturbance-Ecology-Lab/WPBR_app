@@ -35,6 +35,8 @@ names(inv_raster) <- stringr::str_replace(names(inv_raster), "inv-", "")
 
 ## {.sidebar}
 
+View the WPBR risk for a model and year:
+
 ```{r}
 # Drop-down menu to select the model
 selectInput(
@@ -43,9 +45,7 @@ selectInput(
   choices = list("Established Model" = 1, "Invading Model" = 2),
   selected = 1
 ) 
-```
 
-```{r}
 # Drop-down menu to select the year
 selectInput(
   inputId = "year_select",
@@ -55,9 +55,12 @@ selectInput(
 ) 
 ```
 
+Download a png file of the current map:
+
 ```{r}
 # Download button to download a picture of the map
 downloadButton(outputId = "dl", label = "Map Download")
+tags$br()
 ```
 
 Current map coordinates:
@@ -215,19 +218,19 @@ user_created_map <- reactive({
 
 # Output the current coordinates on the map
 output$current_coords_w <- renderText({
-  paste0("West: ", input$map_bounds$west)
+  paste0(input$map_bounds$west, "° W")
 })
 
 output$current_coords_e <- renderText({
-  paste0("East: ", input$map_bounds$east)
+  paste0(input$map_bounds$east, "° E")
 })
 
 output$current_coords_s <- renderText({
-  paste0("South: ", input$map_bounds$south)
+  paste0(input$map_bounds$south, "° S")
 })
 
 output$current_coords_n <- renderText({
-  paste0("North: ", input$map_bounds$north)
+  paste0(input$map_bounds$north, "° N")
 })
 
 output$dl <- downloadHandler(
@@ -262,19 +265,23 @@ selectInput(
 ) 
 
 # Input: Specify the range of years you want
-sliderInput(inputId = "range", label = "Range:",
+sliderInput(inputId = "range", label = "Range of years",
             min = 1980, max = 2023,
             value = c(1980,1990), sep = "")
 
 # Input: Specify the coordinates for the spatial area you want
-numericInput(inputId = "west_coord", label = "West coordinate:", terra::ext(est_raster)[1])
+numericInput(inputId = "west_coord", label = "Degrees West", terra::ext(est_raster)[1])
 
-numericInput(inputId = "east_coord", label = "East coordinate:", terra::ext(est_raster)[2])
+numericInput(inputId = "east_coord", label = "Degrees East", terra::ext(est_raster)[2])
 
-numericInput(inputId = "south_coord", label = "South coordinate:", terra::ext(est_raster)[3])
+numericInput(inputId = "south_coord", label = "Degrees South", terra::ext(est_raster)[3])
 
-numericInput(inputId = "north_coord", label = "North coordinate:", terra::ext(est_raster)[4])
+numericInput(inputId = "north_coord", label = "Degrees North", terra::ext(est_raster)[4])
+```
 
+Download a csv file of the current summary dataframe:
+
+```{r}
 # Download button to download a csv of the summary dataframe
 downloadButton(outputId = "dl2", label = "Data Download")
 ```
