@@ -13,10 +13,9 @@ server: shiny
 #| context: setup
 
 # Load packages
-librarian::shelf(shiny, dplyr, leaflet,
+librarian::shelf(quarto, shiny, dplyr, leaflet,
                  terra, raster, leafem,
-                 htmltools, stringr, mapview,
-                 webshot2, quiet = T)
+                 htmltools, stringr, mapview, quiet = T)
 
 # NOTE: might need to run this in order for the Downloading feature to work
 # webshot::install_phantomjs(force = TRUE)
