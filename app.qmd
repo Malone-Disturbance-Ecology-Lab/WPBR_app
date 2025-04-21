@@ -13,9 +13,22 @@ server: shiny
 #| context: setup
 
 # Load packages
-librarian::shelf(quarto, shiny, dplyr, leaflet,
-                 terra, raster, leafem,
-                 htmltools, stringr, mapview, quiet = T)
+library(quarto)
+library(shiny)
+library(dplyr)
+library(leaflet)
+library(terra)
+library(raster)
+library(leafem)
+library(htmltools)
+library(stringr)
+library(curl)
+library(pagedown)
+library(chromote)
+library(webshot2)
+library(mapview)
+
+#chromote::local_chrome_version("latest-stable", binary = "chrome-headless-shell")
 
 # NOTE: might need to run this in order for the Downloading feature to work
 # webshot::install_phantomjs(force = TRUE)
