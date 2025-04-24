@@ -28,8 +28,6 @@ library(chromote)
 library(webshot2)
 library(mapview)
 
-#chromote::local_chrome_version("latest-stable", binary = "chrome-headless-shell")
-
 # NOTE: might need to run this in order for the Downloading feature to work
 # webshot::install_phantomjs(force = TRUE)
 
@@ -300,7 +298,7 @@ downloadButton(outputId = "dl2", label = "Data Download")
 
 ## Row 
 ```{r}
-# Our summary table will show up in the "Summary" tab
+# Our summary table will show up in the "Data" tab
 tableOutput(outputId = "values")
 ```
 
