@@ -32,9 +32,11 @@ library(mapview)
 # webshot::install_phantomjs(force = TRUE)
 
 # Read in established model raster
-est_raster <- terra::rast("Ensemble_1980-2023_EST.tif")
+est_raster <- terra::rast("Ensemble_1980-2023_EST.tif") %>%
+  terra::project("epsg:4326")
 # Read in invading model raster
-inv_raster <- terra::rast("Ensemble_1980-2023_INV.tif")
+inv_raster <- terra::rast("Ensemble_1980-2023_INV.tif") %>%
+  terra::project("epsg:4326")
 
 # Rename each layer to just the year for both models
 names(est_raster) <- stringr::str_replace(names(est_raster), "est-", "")
