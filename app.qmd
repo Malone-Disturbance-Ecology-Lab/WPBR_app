@@ -43,6 +43,34 @@ names(est_raster) <- stringr::str_replace(names(est_raster), "est-", "")
 names(inv_raster) <- stringr::str_replace(names(inv_raster), "inv-", "")
 ```
 
+# About
+
+## Row
+
+### Column {width=40%}
+
+<p align="center">
+<img src="images/wpbr_limber_pine.png" align="center" width="90%"/>
+</p>
+
+<center>*White pine blister rust stem canker sporulating on limber pine.*</center>
+
+<center>*Photo: Kelly S. Burns, USDA Forest Service.*</center>
+
+### Column {width=60%}
+
+White pine blister rust (WPBR) is a highly destructive disease threatening high-elevation five-needle white pines across North America. To better understand risk patterns, we analyzed data from independent studies conducted across the western U.S. between 1995 and 2020. Using this data, we assessed WPBR risk for high-elevation five-needle pine species (High-5) from 1980 to 2023, integrating the results into the adaptive management tool "RustMapper." These projections estimate the annual probability of WPBR occurrence, providing valuable insights for monitoring and management. Risk ranges from 0 to 1, and values closer to 1 indicate a higher likelihood of disease occurrence based on conditions.
+
+Malone, S.L., A.W. Schoettle, K.S. Burns, H.S. Kearns, J.E. Stewart, M. Newcomb, and C.M. Cleaver. 2025. RUST MAPPER: White Pine Blister Rust Risk in the Western United States ver 2. Environmental Data Initiative. <https://doi.org/10.6073/pasta/ae3ef7402b347a7b9ec92bbf8b314685>.
+
+<p align="center">
+<img src="images/infected_limber_pine.png" align="center" width="70%"/>
+</p>
+
+<center>*Infected limber pine seedling with needle spots and spermogonia.*</center>
+
+<center>*Photo: Isabelle Lebouce, Dorena Genetic Resource Center, USDA Forest Service.*</center>
+
 # Map
 
 ## {.sidebar}
