@@ -5,6 +5,7 @@ $cream: #F4F3EE;
 $darkgreen: #0d5c63;
 $lavender: #f7f3f5;
 $lightgreen: #eef6f4;
+$blue: #8bc1cc;
 
 // Base document colors
 $navbar-hl: $darkgreen; // navbar link highlight color
@@ -14,4 +15,8 @@ $body-bg: $lavender; // page background color
 /*-- scss:rules --*/
 .card-body {
   background-color: $cream;
+}
+
+.table {
+  border-color: $blue;
 }
