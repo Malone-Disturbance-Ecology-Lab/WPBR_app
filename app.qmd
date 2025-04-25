@@ -95,7 +95,7 @@ selectInput(
 ) 
 ```
 
-Download a png file of the current map:
+Download a png file of the current map (download will start in a few seconds, please be patient as to not overload the server):
 
 ```{r}
 # Download button to download a picture of the map
