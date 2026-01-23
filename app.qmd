@@ -61,7 +61,13 @@ names(inv_raster) <- stringr::str_replace(names(inv_raster), "inv-", "")
 
 White pine blister rust (WPBR) is a highly destructive disease threatening high-elevation five-needle white pines across North America. To better understand risk patterns, we analyzed data from independent studies conducted across the western U.S. between 1995 and 2020. Using this data, we assessed WPBR risk for high-elevation five-needle pine species (High-5) from 1980 to 2023, integrating the results into the adaptive management tool "RustMapper." These projections estimate the annual probability of WPBR occurrence, providing valuable insights for monitoring and management. Risk ranges from 0 to 1, and values closer to 1 indicate a higher likelihood of disease occurrence based on conditions.
 
-Malone, S.L., A.W. Schoettle, K.S. Burns, H.S. Kearns, J.E. Stewart, M. Newcomb, and C.M. Cleaver. 2025. RUST MAPPER: White Pine Blister Rust Risk in the Western United States ver 2. Environmental Data Initiative. <https://doi.org/10.6073/pasta/ae3ef7402b347a7b9ec92bbf8b314685>.
+To download this data, please visit:
+
+Malone, S.L., Schoettle, A.W., Burns, K.S., Kearns, H.S., Stewart, J.E., Newcomb, M., and Cleaver, C.M. RustMapper: White Pine Blister Rust Risk in the Western United States, 1980-2023 ver 3. Environmental Data Initiative. (2026). <https://doi.org/10.6073/pasta/677bc02adfe51760f752494cac74d11e>.
+
+For more information on this project, please read:
+
+Malone, S.L., Schoettle, A.W., Burns, K.S., Kearns, H.S., Stewart, J.E., Newcomb, M., and Cleaver, C.M. RustMapper: White Pine Blister Rust Risk Across High Elevation Forests in the Western United States. <i>Sci Data</i> <b>12</b>, 1046 (2025). <https://doi.org/10.1038/s41597-025-05382-1>.
 
 <p align="center">
 <img src="images/infected_limber_pine.png" align="center" width="70%"/>
@@ -276,7 +282,7 @@ output$current_coords_n <- renderText({
 output$dl <- downloadHandler(
   # Create the output file name
   filename = function(){
-    paste0(Sys.Date(),"_", input$model_select,"_", input$year_select, "_custom_map", ".png")
+    paste0(input$model_select, "_", input$year_select, "_custom_map_", Sys.Date(), ".png")
     },
   
   content = function(file) {
@@ -412,7 +418,7 @@ output$values <- renderTable({
 output$dl2 <- downloadHandler(
   # Create the output file name
   filename = function() {
-    paste0(Sys.Date(), "_custom_summary.csv")
+    paste0("custom_summary_", Sys.Date(), ".csv")
   },
   
   content = function(file) {
