@@ -32,11 +32,9 @@ library(mapview)
 # webshot::install_phantomjs(force = TRUE)
 
 # Read in established model raster
-est_raster <- terra::rast("Ensemble_1980-2023_EST.tif") %>%
-  terra::project("epsg:4326")
+est_raster <- terra::rast("Ensemble_1980-2023_EST_epsg_4326.tif") 
 # Read in invading model raster
-inv_raster <- terra::rast("Ensemble_1980-2023_INV.tif") %>%
-  terra::project("epsg:4326")
+inv_raster <- terra::rast("Ensemble_1980-2023_INV_epsg_4326.tif") 
 
 # Rename each layer to just the year for both models
 names(est_raster) <- stringr::str_replace(names(est_raster), "est-", "")
@@ -143,7 +141,8 @@ raster_model <- reactive({
 
 # Pick out the raster layer that corresponds to the model and year the user selects
 raster_layer <- reactive({
-  raster_model()[[input$year_select]]
+  selected_layer <- raster_model()[[input$year_select]] %>%
+    leaflet::projectRasterForLeaflet(method = "bilinear")
 })
 
 # Create the foundational Leaflet map
@@ -161,7 +160,7 @@ foundational_map <- reactive({
     # Add Leaflet-provided terrain map
     leaflet::addProviderTiles("Esri.WorldImagery", group = "Imagery") %>%
     # Add raster layer plot
-    leaflet::addRasterImage(group = "WPBR risk", raster_layer(), colors = pal) %>%
+    leaflet::addRasterImage(group = "WPBR risk", raster_layer(), colors = pal, project = F) %>%
     # Add legend for raster layer
     leaflet::addLegend(
       group = "WPBR risk",
