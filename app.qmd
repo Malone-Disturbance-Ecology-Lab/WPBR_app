@@ -32,9 +32,9 @@ library(mapview)
 # webshot::install_phantomjs(force = TRUE)
 
 # Read in established model raster
-est_raster <- terra::rast("Ensemble_1980-2023_EST_epsg_4326.tif") 
+est_raster <- terra::rast("Ensemble_1980-2099_EST_epsg_4326.tif") 
 # Read in invading model raster
-inv_raster <- terra::rast("Ensemble_1980-2023_INV_epsg_4326.tif") 
+inv_raster <- terra::rast("Ensemble_1980-2099_INV_epsg_4326.tif") 
 
 # Rename each layer to just the year for both models
 names(est_raster) <- stringr::str_replace(names(est_raster), "est-", "")
@@ -57,11 +57,13 @@ names(inv_raster) <- stringr::str_replace(names(inv_raster), "inv-", "")
 
 ### Column {width=60%}
 
-White pine blister rust (WPBR) is a highly destructive disease threatening high-elevation five-needle white pines across North America. To better understand risk patterns, we analyzed data from independent studies conducted across the western U.S. between 1995 and 2020. Using this data, we assessed WPBR risk for high-elevation five-needle pine species (High-5) from 1980 to 2023, integrating the results into the adaptive management tool "RustMapper." These projections estimate the annual probability of WPBR occurrence, providing valuable insights for monitoring and management. Risk ranges from 0 to 1, and values closer to 1 indicate a higher likelihood of disease occurrence based on conditions.
+White pine blister rust (WPBR) is a highly destructive disease threatening high-elevation five-needle white pines across North America. To better understand risk patterns, we analyzed data from independent studies conducted across the western U.S. between 1995 and 2020. Using this data, we assessed WPBR risk for high-elevation five-needle pine species (High-5) from 1980 to 2023, and from 2030 to 2099, integrating the results into the adaptive management tool "RustMapper." These projections estimate the annual probability of WPBR occurrence, providing valuable insights for monitoring and management. Risk ranges from 0 to 1, and values closer to 1 indicate a higher likelihood of disease occurrence based on conditions.
 
 To download this data, please visit:
 
 Malone, S.L., Schoettle, A.W., Burns, K.S., Kearns, H.S., Stewart, J.E., Newcomb, M., and Cleaver, C.M. RustMapper: White Pine Blister Rust Risk in the Western United States, 1980-2023 ver 3. Environmental Data Initiative. (2026). <https://doi.org/10.6073/pasta/677bc02adfe51760f752494cac74d11e>.
+
+Malone, S.L., Schoettle, A.W., Burns, K.S., Kearns, H.S., Stewart, J.E., Newcomb, M., and Cleaver, C.M. RustMapper: White Pine Blister Rust Risk in the Western United States, 2030-2099 ver 2. Environmental Data Initiative. (2026). <https://doi.org/10.6073/pasta/0a5a5880cdba8761c3f2de32f4575804>.
 
 For more information on this project, please read:
 
@@ -94,7 +96,7 @@ selectInput(
 selectInput(
   inputId = "year_select",
   label = "Year",
-  choices = 1980:2023,
+  choices = c(1980:2023, 2030:2099),
   selected = 1980
 ) 
 ```
@@ -136,6 +138,17 @@ raster_model <- reactive({
   
   if (input$model_select == "Invading Model") {
     return(inv_raster)
+  }
+})
+
+# Get the name of the selected model
+raster_model_name <- reactive({
+  if (input$model_select == "Established Model") {
+    return("Established")
+  }
+  
+  if (input$model_select == "Invading Model") {
+    return("Invading")
   }
 })
 
@@ -281,7 +294,7 @@ output$current_coords_n <- renderText({
 output$dl <- downloadHandler(
   # Create the output file name
   filename = function(){
-    paste0(input$model_select, "_", input$year_select, "_custom_map_", Sys.Date(), ".png")
+    paste0(raster_model_name(), "_Model_", input$year_select, "_custom_map_", Sys.Date(), ".png")
     },
   
   content = function(file) {
@@ -313,8 +326,8 @@ selectInput(
 
 # Input: Specify the range of years you want
 sliderInput(inputId = "range", label = "Range of years",
-            min = 1980, max = 2023,
-            value = c(1980,1990), sep = "")
+            min = 1980, max = 2099,
+            value = c(1980,2000), sep = "")
 
 # Input: Specify the coordinates for the spatial area you want
 numericInput(inputId = "west_coord", label = "Degrees West", terra::ext(est_raster)[1])
@@ -417,7 +430,7 @@ output$values <- renderTable({
 output$dl2 <- downloadHandler(
   # Create the output file name
   filename = function() {
-    paste0("custom_summary_", Sys.Date(), ".csv")
+    paste0(summary_raster_model_name(), "_Model_custom_summary_", Sys.Date(), ".csv")
   },
   
   content = function(file) {
